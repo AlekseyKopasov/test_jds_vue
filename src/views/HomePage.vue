@@ -2,7 +2,7 @@
   <div>
     <h2>Home page</h2>
     <p>Text</p>
-    <a href="/todos">todos</a>
+    <router-link to="/todos">todos</router-link>
   </div>
 </template>
 

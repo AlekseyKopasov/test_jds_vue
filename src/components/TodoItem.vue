@@ -1,12 +1,9 @@
 <template>
   <li>
-    <span :class="{ done: todo.completed }">
-      <input
-          type="checkbox"
-      >
-      <strong>{{ index + 1 }}</strong>
-      {{ todo.title }}
-    </span>
+    <p @click="todo.completed = !todo.completed" :class="{ done: todo.completed }">
+      <span >{{ index + 1 }}</span>
+      <span>{{ todo.title }}</span>
+    </p>
     <button
       @click="$emit('remove-todo', todo.id)"
     >&times;</button>

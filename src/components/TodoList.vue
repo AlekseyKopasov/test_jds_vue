@@ -1,13 +1,16 @@
 <template>
-  <ul>
-    <TodoItem
-        v-for="(todo, index) in todos"
-        :key="todo.id"
-        :todo="todo"
-        :index="index"
-        @remove-todo="removeTodo"
-    />
-  </ul>
+  <div>
+    <span>{{ todos.length }}</span>
+    <ul>
+      <TodoItem
+          v-for="(todo, index) in todos"
+          :key="todo.id"
+          :todo="todo"
+          :index="index"
+          @remove-todo="removeTodo"
+      />
+    </ul>
+  </div>
 </template>
 
 <script>
