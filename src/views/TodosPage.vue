@@ -5,22 +5,21 @@
 
     <AddTodo @add-todo="addTodo"/>
 
-    <FilterTodo />
-
+    <FilterTodo @selected-option="selectedOption" />
+    <button @click="clearCompletedTodo">Clear Completed</button>
     <Loader v-if="loading" />
-
     <TodoList
-        v-else-if="filteredTodos.length"
-        :todos="filteredTodos"
-        v-model="fillter"
+        v-else-if="filtered.length"
+        :todos="allTodos"
         @remove-todo="removeTodo"
-        @filtered="filtered"
     />
     <p v-else>No todos!</p>
   </div>
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex';
+
 import TodoList from '@/components/TodoList';
 import AddTodo from '@/components/AddTodo';
 import Loader from '@/components/Loader';
@@ -29,49 +28,44 @@ import FilterTodo from '@/components/FilterTodo';
 export default {
   data() {
     return {
-      todos: [],
-      loading: true,
-      fillter: 'all'
+      filter: 'all'
     }
   },
   components: {
     TodoList, AddTodo, Loader, FilterTodo
   },
   mounted() {
-    fetch('https://jsonplaceholder.typicode.com/todos?_limit=5')
-        .then(response => response.json())
-        .then(json => {
-          this.todos = json;
-          this.loading = false;
-        });
+    this.fetchTodos();
   },
   methods: {
+    ...mapActions(['fetchTodos', 'filteredTodos']),
     removeTodo(id) {
       this.todos = this.todos.filter(t => t.id !== id);
     },
     addTodo(newTodo) {
       this.todos.push(newTodo);
     },
-    filtered(option) {
+    selectedOption(option) {
       this.filter = option;
-      console.log(option)
-    }
+    },
+    clearCompletedTodo() {
+      const hasCompleted = this.todos.some(t => t.completed);
+
+      if (hasCompleted) {
+        this.todos = this.todos.filter(t => !t.completed);
+      }
+    },
   },
   computed: {
-    filteredTodos() {
-      if (this.filter === 'all') {
-        return this.todos;
-      }
-
-      if (this.filter === 'completed') {
-        return this.todos.filter(t => t.completed);
-      }
-
-      if (this.filter === 'active') {
-        return this.todos.filter(t => !t.completed);
-      }
-
-      return this.todos;
+    ...mapGetters(['getTodos', 'getLoading']),
+    allTodos() {
+      return this.getTodos;
+    },
+    loading() {
+      return this.getLoading;
+    },
+    filtered() {
+      return this.filteredTodos(this.filter);
     }
   }
 };
