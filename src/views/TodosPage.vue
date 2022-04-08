@@ -3,22 +3,23 @@
     <h2>Todo</h2>
     <router-link to="/">Home Page</router-link>
 
-    <AddTodo @add-todo="addTodo"/>
+    <AddTodo @add-todo="add"/>
 
-    <FilterTodo @selected-option="selectedOption" />
-    <button @click="clearCompletedTodo">Clear Completed</button>
+    <FilterTodo />
+    <button @click="clear">Clear Completed</button>
+
     <Loader v-if="loading" />
     <TodoList
-        v-else-if="filtered.length"
+        v-else-if="allTodos.length"
         :todos="allTodos"
-        @remove-todo="removeTodo"
+        @remove-todo="remove"
     />
     <p v-else>No todos!</p>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex';
+import { mapGetters, mapActions, mapMutations } from 'vuex';
 
 import TodoList from '@/components/TodoList';
 import AddTodo from '@/components/AddTodo';
@@ -26,11 +27,6 @@ import Loader from '@/components/Loader';
 import FilterTodo from '@/components/FilterTodo';
 
 export default {
-  data() {
-    return {
-      filter: 'all'
-    }
-  },
   components: {
     TodoList, AddTodo, Loader, FilterTodo
   },
@@ -38,22 +34,16 @@ export default {
     this.fetchTodos();
   },
   methods: {
-    ...mapActions(['fetchTodos', 'filteredTodos']),
-    removeTodo(id) {
-      this.todos = this.todos.filter(t => t.id !== id);
+    ...mapActions(['fetchTodos']),
+    ...mapMutations(['removeTodo', 'addTodo', 'clearCompletedTodo']),
+    remove(id) {
+      this.removeTodo(id);
     },
-    addTodo(newTodo) {
-      this.todos.push(newTodo);
+    add(newTodo) {
+      this.addTodo(newTodo);
     },
-    selectedOption(option) {
-      this.filter = option;
-    },
-    clearCompletedTodo() {
-      const hasCompleted = this.todos.some(t => t.completed);
-
-      if (hasCompleted) {
-        this.todos = this.todos.filter(t => !t.completed);
-      }
+    clear() {
+      this.clearCompletedTodo();
     },
   },
   computed: {
@@ -63,9 +53,6 @@ export default {
     },
     loading() {
       return this.getLoading;
-    },
-    filtered() {
-      return this.filteredTodos(this.filter);
     }
   }
 };

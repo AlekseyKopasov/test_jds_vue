@@ -1,6 +1,6 @@
 <template>
   <li>
-    <p @click="todo.completed = !todo.completed" :class="{ done: todo.completed }">
+    <p @click="changeCompleted" :class="{ done: todo.completed }">
       <span >{{ index + 1 }}</span>
       <span>{{ todo.title }}</span>
     </p>
@@ -11,9 +11,17 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex';
+
 export default {
   name: 'TodoItem',
   props: ['todo', 'index'],
+  methods: {
+    ...mapMutations(['changeStatusTodo']),
+    changeCompleted() {
+      this.changeStatusTodo(this.todo.id);
+    }
+  }
 }
 </script>
 

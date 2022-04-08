@@ -7,6 +7,8 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+
 export default {
   name: 'FilterTodo',
   data() {
@@ -15,9 +17,10 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['filteredTodos']),
     change(evt) {
      this.filter = evt.target.value;
-     this.$emit('selected-option', this.filter);
+     this.filteredTodos(this.filter);
     }
   }
 }

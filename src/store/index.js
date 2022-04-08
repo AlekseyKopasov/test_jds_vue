@@ -1,17 +1,17 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import {re} from '@babel/core/lib/vendor/import-meta-resolve'
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
     todos: [],
+    filteredTodos: [],
     loading: true
   },
   getters: {
     getTodos(state) {
-      return state.todos;
+      return state.filteredTodos;
     },
     getLoading(state) {
       return state.loading;
@@ -19,38 +19,56 @@ export default new Vuex.Store({
   },
   actions: {
     async fetchTodos({ commit }, limit = 5) {
-      const res = await fetch('https://jsonplaceholder.typicode.com/todos?_limit=' + limit);
-      const todos = res.json();
-      commit('updateTodos', todos);
-      commit('updateLoading', false);
+      await fetch('https://jsonplaceholder.typicode.com/todos?_limit=' + limit).
+        then((res) => res.json()).
+        then((todos) => {
+          commit('updateTodos', {todos});
+          commit('updateLoading', false);
+      });
     },
-    filteredTodos({ commit, dispatch }, filter) {
-      const todos = this.state.todos;
-
-      if (!todos.length) {
-        console.log(42)
-        dispatch('fetchTodos');
-      } else {
-        commit('updateTodos', filter);
-      }
+    filteredTodos({ commit }, filter = 'all') {
+      let todos = this.state.todos;
+      commit('updateTodos', {todos, filter});
     },
   },
   mutations: {
-    updateTodos(state, todos, filter = 'all') {
+    updateTodos(state, {todos, filter = 'all'}) {
+      state.todos = todos;
+
       if (filter === 'all') {
-        state.todos = todos;
+        state.filteredTodos = todos;
       }
 
       if (filter === 'completed') {
-        state.todos = state.todos.filter(t => t.completed);
+        state.filteredTodos = state.todos.filter(t => t.completed);
       }
 
       if (filter === 'active') {
-        state.todos = state.todos.filter(t => !t.completed);
+        state.filteredTodos = state.todos.filter(t => !t.completed);
       }
     },
     updateLoading(state, bool) {
       state.loading = bool;
     },
+    removeTodo(state, id) {
+      state.filteredTodos = state.todos.filter(t => t.id !== id);
+    },
+    addTodo(state, newTodo) {
+      state.todos.push(newTodo);
+    },
+    clearCompletedTodo(state) {
+      const hasCompleted = state.todos.some(t => t.completed);
+
+      if (hasCompleted) {
+        state.filteredTodos = state.todos = state.todos.filter(t => !t.completed);
+      }
+    },
+    changeStatusTodo(state, id) {
+      state.filteredTodos = state.todos.map(t => {
+        if (t.id === id) {
+          t.completed = !t.completed;
+        }
+      });
+    }
   }
 });
