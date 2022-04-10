@@ -1,5 +1,10 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import VuexPersistence from 'vuex-persist';
+
+const vuexLocal = new VuexPersistence({
+  storage: window.sessionStorage
+});
 
 Vue.use(Vuex);
 
@@ -35,6 +40,10 @@ export default new Vuex.Store({
     updateTodos(state, {todos, filter = 'all'}) {
       state.todos = todos;
 
+      if (!state.filteredTodos.length) {
+        state.filteredTodos = todos;
+      }
+
       if (filter === 'all') {
         state.filteredTodos = todos;
       }
@@ -51,24 +60,21 @@ export default new Vuex.Store({
       state.loading = bool;
     },
     removeTodo(state, id) {
-      state.filteredTodos = state.todos.filter(t => t.id !== id);
+      state.filteredTodos = state.todos = state.todos.filter(t => t.id !== id);
     },
     addTodo(state, newTodo) {
       state.todos.push(newTodo);
     },
     clearCompletedTodo(state) {
-      const hasCompleted = state.todos.some(t => t.completed);
-
-      if (hasCompleted) {
-        state.filteredTodos = state.todos = state.todos.filter(t => !t.completed);
-      }
+      state.filteredTodos = state.todos = state.todos.filter(t => !t.completed);
     },
     changeStatusTodo(state, id) {
-      state.filteredTodos = state.todos.map(t => {
+      state.filteredTodos.find(t => {
         if (t.id === id) {
           t.completed = !t.completed;
         }
       });
     }
-  }
+  },
+  plugins: [vuexLocal.plugin],
 });

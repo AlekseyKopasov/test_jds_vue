@@ -1,12 +1,14 @@
 <template>
-  <div>
-    <h2>Todo</h2>
-    <router-link to="/">Home Page</router-link>
+  <div class="todos">
+    <router-link class="link" to="/">Home Page</router-link>
 
     <AddTodo @add-todo="add"/>
 
-    <FilterTodo />
-    <button @click="clear">Clear Completed</button>
+    <div class="todos__filters">
+      <FilterTodo />
+      <button @click="clear">Clear Completed</button>
+      <span class="todos__count">Total posts: {{ allTodos.length }}</span>
+    </div>
 
     <Loader v-if="loading" />
     <TodoList
@@ -14,7 +16,7 @@
         :todos="allTodos"
         @remove-todo="remove"
     />
-    <p v-else>No todos!</p>
+    <p class="todos__no-todos" v-else>No todos!</p>
   </div>
 </template>
 
@@ -31,7 +33,9 @@ export default {
     TodoList, AddTodo, Loader, FilterTodo
   },
   mounted() {
-    this.fetchTodos();
+    if (!this.allTodos.length) {
+      this.fetchTodos();
+    }
   },
   methods: {
     ...mapActions(['fetchTodos']),
@@ -57,3 +61,51 @@ export default {
   }
 };
 </script>
+
+<style>
+.todos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.todos__filters {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.todos__filters button {
+  padding: 10px;
+  margin-right: 15px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #820d1f;
+  border: 1px solid #820d1f;
+  background-color: transparent;
+  cursor: pointer;
+  transition: border-color 0.4s ease, background-color 0.4s ease, color 0.4s ease;
+}
+
+.todos__filters button:hover {
+  border-color: #49820d;
+  background-color: #49820d;
+  color: #ffffff;
+}
+
+.todos__count {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.todos__no-todos {
+  font-size: 30px;
+  font-weight: 800;
+  color: #820d1f;
+}
+</style>
